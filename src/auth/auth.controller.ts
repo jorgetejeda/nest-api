@@ -2,8 +2,10 @@ import { Body, Controller, Get, Post, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { Role } from 'src/enums/rol.enum';
+import { Role } from '../common/enums/rol.enum';
 import { Auth } from './decorators/auth.decorators';
+import { ActiveUser } from '../common/decorators/active-user.decorators';
+import { IUserActive } from '../common/interfaces/user-active.interfaces';
 
 interface RequestWithUser extends Request {
   user: {
@@ -30,7 +32,7 @@ export class AuthController {
   // @Roles(Role.ADMIN, Role.USER)
   // @UseGuards(AuthGuard, RolesGuard)
   @Auth(Role.ADMIN, Role.USER)
-  profile(@Request() req: RequestWithUser) {
-    return req.user;
+  profile(@ActiveUser() user: IUserActive) {
+    return user;
   }
 }
