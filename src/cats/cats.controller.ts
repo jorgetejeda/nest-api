@@ -22,13 +22,12 @@ export class CatsController {
 
   @Post()
   create(@Body() createCatDto: CreateCatDto, @ActiveUser() user: IUserActive) {
-    console.log(user)
-    return this.catsService.create(createCatDto, user.email);
+    return this.catsService.create(createCatDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.catsService.findAll();
+  findAll(@ActiveUser() user: IUserActive) {
+    return this.catsService.findAll(user);
   }
 
   @Get(':id')

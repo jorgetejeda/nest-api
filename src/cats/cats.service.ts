@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +10,7 @@ import { Cat } from './entities/cat.entity';
 import { Repository } from 'typeorm';
 import { Breed } from 'src/breeds/entities/breed.entity';
 import { IUserActive } from 'src/common/interfaces/user-active.interfaces';
+import { Role } from 'src/common/enums/rol.enum';
 
 @Injectable()
 export class CatsService {
@@ -16,7 +21,7 @@ export class CatsService {
     private breedsRepository: Repository<Breed>,
   ) {}
 
-  async create(createCatDto: CreateCatDto, userEmail: string) {
+  async create(createCatDto: CreateCatDto, user: IUserActive) {
     const breed = await this.breedsRepository.findOneBy({
       name: createCatDto.breed,
     });
@@ -26,15 +31,31 @@ export class CatsService {
     return await this.catsRepository.save({
       ...createCatDto,
       breed,
-      userEmail,
+      userEmail: user.email,
     });
   }
 
-  findAll() {
-    return this.catsRepository.find();
+  findAll(user: IUserActive) {
+    return user.role === Role.ADMIN
+      ? this.catsRepository.find()
+      : this.catsRepository.find({ where: { userEmail: user.email } });
   }
 
-  findOne(id: number) {
+  async findOne(id: number, user: IUserActive) {
+    if (!id) {
+      throw new BadRequestException('Id is required');
+    }
+
+    const cat = await this.catsRepository.findOneBy({ id });
+
+    if (!cat) {
+      throw new BadRequestException('Cat not found');
+    }
+
+    if (user.role !== Role.ADMIN && cat.userEmail !== user.email) {
+      throw new UnauthorizedException();
+    }
+
     return this.catsRepository.findOneBy({ id });
   }
 
