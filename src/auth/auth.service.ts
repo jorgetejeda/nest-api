@@ -11,8 +11,9 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
+
   async login(loginDto: LoginDto) {
-    const user = await this.userService.findOneByEmail(loginDto.email);
+    const user = await this.userService.findByEmailWithPassword(loginDto.email);
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -24,8 +25,8 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
 
-    const payload = { email: user.email, sub: user.id };
-    const token = this.jwtService.sign(payload);
+    const payload = { emails: user.email, sub: user.id, role: user.role };
+    const token = await this.jwtService.signAsync(payload);
     return {
       access_token: token,
       email: user.email,

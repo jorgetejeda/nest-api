@@ -13,4 +13,7 @@ export class CreateUserDto {
   @MinLength(6)
   @Transform(({ value }) => value.trim())
   password: string;
+
+  @IsString()
+  role: string;
 }
