@@ -3,10 +3,14 @@ import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
   async login(loginDto: LoginDto) {
     const user = await this.userService.findOneByEmail(loginDto.email);
     if (!user) {
@@ -19,7 +23,13 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid credentials');
     }
-    return user;
+
+    const payload = { email: user.email, sub: user.id };
+    const token = this.jwtService.sign(payload);
+    return {
+      access_token: token,
+      email: user.email,
+    };
   }
 
   async register(registerDto: RegisterDto) {
