@@ -14,7 +14,10 @@ import { Auth } from 'src/auth/decorators/auth.decorators';
 import { Role } from 'src/common/enums/rol.enum';
 import { ActiveUser } from 'src/common/decorators/active-user.decorators';
 import { IUserActive } from 'src/common/interfaces/user-active.interfaces';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('cats')
+@ApiBearerAuth()
 @Auth(Role.ADMIN, Role.USER)
 @Controller('cats')
 export class CatsController {

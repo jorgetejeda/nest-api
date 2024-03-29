@@ -11,10 +11,10 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Auth } from 'src/auth/decorators/auth.decorators';
-import { IUserActive } from 'src/common/interfaces/user-active.interfaces';
-import { ActiveUser } from 'src/common/decorators/active-user.decorators';
 import { Role } from 'src/common/enums/rol.enum';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
