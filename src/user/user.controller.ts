@@ -10,6 +10,10 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Auth } from 'src/auth/decorators/auth.decorators';
+import { IUserActive } from 'src/common/interfaces/user-active.interfaces';
+import { ActiveUser } from 'src/common/decorators/active-user.decorators';
+import { Role } from 'src/common/enums/rol.enum';
 
 @Controller('user')
 export class UserController {
@@ -35,6 +39,7 @@ export class UserController {
     return this.userService.update(+id, updateUserDto);
   }
 
+  @Auth(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
