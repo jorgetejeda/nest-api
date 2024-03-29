@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -6,13 +6,6 @@ import { Role } from '../common/enums/rol.enum';
 import { Auth } from './decorators/auth.decorators';
 import { ActiveUser } from '../common/decorators/active-user.decorators';
 import { IUserActive } from '../common/interfaces/user-active.interfaces';
-
-interface RequestWithUser extends Request {
-  user: {
-    email: string;
-    role: string;
-  };
-}
 
 @Controller('auth')
 export class AuthController {
