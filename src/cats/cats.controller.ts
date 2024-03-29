@@ -15,7 +15,7 @@ import { Role } from 'src/common/enums/rol.enum';
 import { ActiveUser } from 'src/common/decorators/active-user.decorators';
 import { IUserActive } from 'src/common/interfaces/user-active.interfaces';
 
-@Auth(Role.USER)
+@Auth(Role.ADMIN, Role.USER)
 @Controller('cats')
 export class CatsController {
   constructor(private readonly catsService: CatsService) {}
@@ -31,13 +31,17 @@ export class CatsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.catsService.findOne(+id);
+  findOne(@Param('id') id: string, @ActiveUser() user: IUserActive) {
+    return this.catsService.findOne(+id, user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCatDto: UpdateCatDto) {
-    return this.catsService.update(+id, updateCatDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateCatDto: UpdateCatDto,
+    @ActiveUser() user: IUserActive,
+  ) {
+    return this.catsService.update(+id, updateCatDto, user);
   }
 
   @Delete(':id')

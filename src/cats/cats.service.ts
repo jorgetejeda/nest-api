@@ -22,9 +22,7 @@ export class CatsService {
   ) {}
 
   async create(createCatDto: CreateCatDto, user: IUserActive) {
-    const breed = await this.breedsRepository.findOneBy({
-      name: createCatDto.breed,
-    });
+    const breed = await this.validateBreed(createCatDto.breed);
     if (!breed) {
       throw new BadRequestException('Breed not found');
     }
@@ -52,18 +50,43 @@ export class CatsService {
       throw new BadRequestException('Cat not found');
     }
 
-    if (user.role !== Role.ADMIN && cat.userEmail !== user.email) {
-      throw new UnauthorizedException();
-    }
+    this.validateOwnership(cat, user);
 
     return this.catsRepository.findOneBy({ id });
   }
 
-  update(id: number, updateCatDto: UpdateCatDto) {
-    // return this.catsRepository.update(id, updateCatDto);
+  async update(id: number, updateCatDto: UpdateCatDto, user: IUserActive) {
+    const cat = await this.catsRepository.findOneBy({ id });
+    await this.validateOwnership(cat, user);
+
+    return await this.catsRepository.update(id, {
+      ...updateCatDto,
+      breed: updateCatDto.breed
+        ? await this.validateBreed(updateCatDto.breed)
+        : undefined,
+      userEmail: user.email,
+    });
   }
 
   remove(id: number) {
     return this.catsRepository.softDelete(id);
+  }
+
+  private validateOwnership(cat: Cat, user: IUserActive) {
+    if (user.role !== Role.ADMIN && cat.userEmail !== user.email) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  private validateBreed(breed: string) {
+    const breedEntity = this.breedsRepository.findOneBy({
+      name: breed,
+    });
+
+    if (!breedEntity) {
+      throw new BadRequestException('Breed not found');
+    }
+
+    return breedEntity;
   }
 }
